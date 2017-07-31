@@ -4,7 +4,6 @@ import numpy as np
 cimport numpy as np
 from scipy.stats import binom
 
-
 cdef class PricingEngine:
     """A base class for option pricing engines."""
     cdef double calculate(self, option.Option option, marketdata.MarketData data):
@@ -43,3 +42,29 @@ cdef class EuropeanBinomialEngine(BinomialEngine):
             payoff_t += option.payoff(spot_t) * binom.pmf(self._nsteps - i, self._nsteps, pu)
 
         return disc * payoff_t
+
+
+cdef class MonteCarloEngine(PricingEngine):
+    """An interface class for Monte Carlo pricing models."""
+    def __init__(self, nreps, nsteps):
+        self._nreps = nreps
+        self._nsteps = nsteps
+
+    cdef double calculate(self, option.Option option , marketdata.MarketData data):
+        pass
+
+cdef class NaiveMonteCarloEngine(MonteCarloEngine):
+    """A concrete class to implement the naive Monte Carlo pricing model."""
+
+    cdef double calculate(self, option.Option option , marketdata.MarketData data):
+        #z = rng.rnorm(self._nreps, 0.0, 1.0, 12354)
+        z = np.random.normal(10)
+
+        return 3.14
+
+cdef class MCHestonEngine(MonteCarloEngine):
+    """A concrete class to implement the Heston Monte Carlo pricing model."""
+
+    cdef double calculate(self, option.Option option, marketdata.MarketData data):
+        return 42
+        
