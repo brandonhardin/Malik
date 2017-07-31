@@ -5,3 +5,4 @@ cdef class Option:
     cdef payoff.Payoff _payoff
 
     cpdef payoff(self, double spot)
+

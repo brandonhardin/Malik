@@ -9,6 +9,12 @@ cdef class Payoff:
     def __init__(self, strike):
         self._strike = strike
 
+    property strike:
+        def __get__(self):
+            return self._strike
+
+        def __set__(self, strike):
+            self._strike = strike
 
 cdef class VanillaCallPayoff(Payoff):
     """A concrete class for vanilla call option payoff."""

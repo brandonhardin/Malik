@@ -1,8 +1,8 @@
-from preza import option
-from preza import payoff
-from preza import engine
-from preza import marketdata
-from preza import facade
+from malik import option
+from malik import payoff
+from malik import engine
+from malik import marketdata
+from malik import facade
 import numpy as np
 
 # make a call option
