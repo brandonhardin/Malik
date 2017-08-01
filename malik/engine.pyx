@@ -66,5 +66,45 @@ cdef class MCHestonEngine(MonteCarloEngine):
     """A concrete class to implement the Heston Monte Carlo pricing model."""
 
     cdef double calculate(self, option.Option option, marketdata.MarketData data):
-        return 42
-        
+        cdef double expiry = option.expiry
+        cdef double strike = option.strike
+        cdef double spot = data.spot
+        cdef double rate = data.rate
+        cdef double vol = data.vol
+        cdef double div = data.div
+        cdef double kappa = data.kappa
+        cdef double theta = data.theta
+        cdef double sigma = data.sigmav
+	cdef double rho = data.rho
+        cdef double path = np.zeros(nsteps)
+        cdef double var = np.zeros(nsteps)
+        cdef doubl CallT = np.zeros(nreps)
+        cdef double[:] zp = np.random.normal(size=(nreps,nsteps))
+        cdef double[:] z1 = np.random.normal(size=(nreps,nsteps))
+        cdef double[:] z2 = np.random.normal(size=(nreps,nsteps))
+        cdef double dt = option.expiry / nsteps
+        cdef double int i
+        cdef double int j
+
+                for i in range(nreps):
+                    var[0] = theta
+                    path[0] = spot
+
+                    for j in range(1, nsteps):
+
+                        z2[i, j] = rho * z1[i, j] + np.sqrt(1.0 - rho * rho) * zp[i, j]
+
+                        var[j] = var[j - 1] + kappa * (theta - var[j - 1]) * dt + sigmav * np.sqrt(var[j - 1] * dt) * z1[i, j]
+
+
+                        if var[j] <= 0.0:
+                            var[j] = np.maximum(var[j], 0.0)
+
+                        
+                        path[j] = path[j - 1] * np.exp((rate - div - 0.5 * var[j]) * dt + np.sqrt(var[j] * dt) * z2[i, j])
+
+                callT[i] = callTPayoff(path[-1], strike)
+
+		result = callT.mean() * np.exp(-rate * expiry)
+
+    
